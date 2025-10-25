@@ -1,11 +1,12 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Request, Form, File, UploadFile, Query
+from fastapi import FastAPI, Depends, HTTPException, status,Request, Form, File, UploadFile,Query
 import mysql.connector
 from dotenv import load_dotenv
-from mysql.connector import Error
+from mysql.connector import Error 
 import os
 import io
 import qrcode
 from starlette.datastructures import UploadFile as StarletteUploadFile
+
 from fastapi.middleware.cors import CORSMiddleware
 from passlib.context import CryptContext
 from datetime import date, datetime, timedelta
@@ -20,63 +21,36 @@ import ast
 
 # Load environment variables
 load_dotenv()
-
-# === Database configuration ===
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_PORT = int(os.getenv("DB_PORT", "3306"))  # Default 3306 if not set
-DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "")
-DB_DATABASE = os.getenv("DB_DATABASE", "transport_mgmt")
-
-# === JWT Config ===
+host = os.getenv("DB_HOST")
+user = os.getenv("DB_USER")
+password = os.getenv("DB_PASSWORD")
+db = os.getenv("DB_DATABASE")
 SECRET_KEY = os.getenv("SECRET_KEY", "Transport_key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 90
 
-# === Supabase Config ===
+
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 BUCKET_NAME = "uploads"  # Supabase bucket name
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# === FastAPI App ===
-app = FastAPI()
-
-# === CORS Middleware ===
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # or specify your frontend domain
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# === MySQL Connection ===
+# Database connection
 def get_db():
+    conn = mysql.connector.connect(
+    host=os.getenv("DB_HOST"),
+    port=int(os.getenv("DB_PORT")),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_DATABASE")
+)
+    cursor = conn.cursor(dictionary=True,buffered=True)
     try:
-        conn = mysql.connector.connect(
-            host=DB_HOST,
-            port=DB_PORT,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            database=DB_DATABASE
-        )
-        cursor = conn.cursor(dictionary=True, buffered=True)
         yield conn, cursor
-    except Error as e:
-        print("Database connection failed:", e)
-        raise HTTPException(status_code=500, detail="Database connection failed")
     finally:
-        try:
-            cursor.close()
-            conn.close()
-        except:
-            pass
+        cursor.close()
+        conn.close()
 
-# === Root Route ===
-@app.get("/")
-def read_root():
-    return {"message": "✅ FastAPI + Railway MySQL + Supabase running successfully!"}
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 def hash_password(password: str) -> str:
