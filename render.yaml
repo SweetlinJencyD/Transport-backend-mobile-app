@@ -5,17 +5,18 @@ services:
     plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
-
     envVars:
       - key: DB_HOST
-        value: localhost
+        sync: false
+      - key: DB_PORT
+        sync: false
       - key: DB_USER
-        value: root
+        sync: false
       - key: DB_PASSWORD
-        value: ""
+        sync: false
       - key: DB_DATABASE
-        value: transport_mgmt
+        sync: false
       - key: SUPABASE_URL
         value: https://jppcqqofohxurofwogsa.supabase.co
       - key: SUPABASE_KEY
-        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwcGNxcW9mb2h4dXJvZndvZ3NhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTc0NTE4MiwiZXhwIjoyMDc1MzIxMTgyfQ.PauE9mR4Nh0_nPKncsmIW3NT00ZGcynJDAdb9wPUI7M
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...

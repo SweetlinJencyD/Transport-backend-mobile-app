@@ -38,10 +38,11 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 # Database connection
 def get_db():
     conn = mysql.connector.connect(
-        host=host,
-        user=user,
-        password=password,
-        database=db
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_DATABASE")
     )
     cursor = conn.cursor(dictionary=True,buffered=True)
     try:
